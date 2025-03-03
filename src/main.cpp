@@ -2,15 +2,7 @@
 #include <IO/Commands/March.hpp>
 #include <IO/Commands/SpawnHunter.hpp>
 #include <IO/Commands/SpawnSwordsman.hpp>
-#include <IO/Events/MapCreated.hpp>
-#include <IO/Events/MarchEnded.hpp>
-#include <IO/Events/MarchStarted.hpp>
-#include <IO/Events/UnitAttacked.hpp>
-#include <IO/Events/UnitDied.hpp>
-#include <IO/Events/UnitMoved.hpp>
-#include <IO/Events/UnitSpawned.hpp>
 #include <IO/System/CommandParser.hpp>
-#include <IO/System/EventLog.hpp>
 #include <IO/System/PrintDebug.hpp>
 #include <fstream>
 #include <iostream>
@@ -31,15 +23,17 @@ int main(int argc, char** argv)
 		throw std::runtime_error("Error: File not found - " + std::string(argv[1]));
 	}
 
+	GameSession game;
+
 	std::cout << "Commands:\n";
 	io::CommandParser parser;
-	parser.add<io::CreateMap>([](auto command) { printDebug(std::cout, command); })
-		.add<io::SpawnSwordsman>([](auto command) { printDebug(std::cout, command); })
-		.add<io::SpawnHunter>([](auto command) { printDebug(std::cout, command); })
-		.add<io::March>([](auto command) { printDebug(std::cout, command); });
+	parser.add<io::CreateMap>([&game](auto command) { game.process(command);})
+		.add<io::SpawnSwordsman>([&game](auto command) { game.process(command);})
+		.add<io::SpawnHunter>([&game](auto command) { game.process(command);})
+		.add<io::March>([&game](auto command) { game.process(command);});
 
 	parser.parse(file);
-	GameSession::getInstance().run();
+	game.run();
 	return 0;
 /*
 	eventLog.log(1, io::MapCreated{10, 10});

@@ -14,19 +14,19 @@ namespace sw
 	class Battle
 	{
 	public:
-		EventLog			 eventLog;
-		int32_t 			 tickId = 2;
-		std::unique_ptr<Map> map;
+		EventLog			 _eventLog;
+		int32_t 			 _tickId = 1;
+		std::unique_ptr<Map> _map;
 
 		bool play();
 
-		void process(int tick_id, const io::CreateMap& data);
-		void process(int tick_id, const io::SpawnHunter& data);
-		void process(int tick_id, const io::SpawnSwordsman& data);
-		void process(int tick_id, const io::March& data);
+		void process(const io::CreateMap& data);
+		void process(const io::SpawnHunter& data);
+		void process(const io::SpawnSwordsman& data);
+		void process(const io::March& data);
 
 		template <typename TCommandData>
-		void process(int tick_id, const TCommandData& data)
+		void process(const TCommandData& data)
 		{
 			static_assert(false, "Unknown command");
 		}

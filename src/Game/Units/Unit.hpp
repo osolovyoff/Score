@@ -6,6 +6,7 @@
 #include "IO/Events/UnitMoved.hpp"
 
 #include "InterfaceUnit.h"
+#include "IO/Events/MarchEnded.hpp"
 
 namespace sw
 {
@@ -13,33 +14,36 @@ namespace sw
 	class Unit: public IUnit
 	{
 	protected:
+		static constexpr uint32_t minimum_range = 2;
 		T _data;
 		bool _isMoving = false;
 		Vector2 _target, _position;
 
 	public:
 		Unit(const T& data): _data(data){} 
-
 		uint32_t getId() const override { return _data.unitId; }
-
 		bool isAlive() const override { return _data.hp > 0; }
 
-		void update(uint32_t tickId, Map* map) override
+		bool update(uint32_t tickId, Map* map) override
 		{
 			if (_data.hp == 0)
 			{
-				return;
+				return false;
 			}
 
-			const bool wasAction = action(tickId, map);
-			if (wasAction) return;
+			const bool wasAction = this->action(tickId, map);
+			if (wasAction) return true;
 
 			if (_isMoving)
 			{
 				_isMoving = moveTo(_target.x, _target.y);
-				EventLog log;
-				log.log(tickId, io::UnitMoved{getId(), _position.x, _position.y});
+				if (_isMoving)
+					EventLog().log(tickId, io::UnitMoved{getId(), _position.x, _position.y});
+				else
+					EventLog().log(tickId, io::MarchEnded{getId(), _position.x, _position.y});
+				return true;
 			}
+			return false;
 		}
 
 		void setTarget(uint32_t x, uint32_t y) override
@@ -74,17 +78,19 @@ namespace sw
 			return true;
 		}
 
-		virtual bool action(uint32_t tickId, Map* map)
+		bool action(uint32_t tickId, Map* map) override
 		{
 			const uint32_t attackerUnitId = getId();
 			auto Victim = map->getClosestUnit(attackerUnitId);
-			if (!Victim) return false;
-
-			const float distance = std::sqrt(std::pow(Victim->getPosition().x - _position.x, 2) + std::pow(Victim->getPosition().y - _position.y, 2));
-			if (distance < 2)
+			if (Victim)
 			{
-				Victim->takeDamage(tickId, _data.strength, attackerUnitId);
-				return true;
+				const Vector2 posVictim = Victim->getPosition();
+				const float distance = std::sqrt(std::pow(posVictim.x - _position.x, 2) + std::pow(posVictim.y - _position.y, 2));
+				if (distance < minimum_range)
+				{
+					Victim->takeDamage(tickId, _data.strength, attackerUnitId);
+					return true;
+				}
 			}
 			return false;
 		}

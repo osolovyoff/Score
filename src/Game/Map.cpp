@@ -13,20 +13,21 @@ namespace sw
 		if (!attacker)
 			return nullptr;
 
-		const auto pos = attacker->getPosition();
+		const auto posAttacker = attacker->getPosition();
 		uint32_t closestUnitId = excludeUnitId;
-		float closestDistance = std::numeric_limits<float>::max();
-		for (auto& unit : _units)
+		double closestDistance = std::numeric_limits<double>::max();
+		for (auto& victim : _units)
 		{
-			if (unit.first == excludeUnitId || !unit.second->isAlive())
+			if (victim.first == excludeUnitId || !victim.second->isAlive())
 				continue;
 
-			auto unitPos = unit.second->getPosition();
-			const float length = std::sqrt(std::pow(unitPos.x - pos.x, 2) + std::pow(unitPos.y - pos.y, 2));
+			const auto posVictim = victim.second->getPosition();
+			const int difX(posVictim.x - posAttacker.x), difY(posVictim.y - posAttacker.y);
+			const double length = std::sqrt(std::pow(difX, 2) + std::pow(difY, 2));
 			if (length < closestDistance)
 			{
 				closestDistance = length;
-				closestUnitId = unit.first;
+				closestUnitId = victim.first;
 			}
 		}
 		if (closestUnitId == excludeUnitId)
@@ -36,22 +37,29 @@ namespace sw
 
 	std::shared_ptr<IUnit> Map::getUnitInRange(uint32_t excludeUnitId, uint32_t rangeMin, uint32_t rangeMax) const
 	{
+		auto attacker = getUnit(excludeUnitId);
+		if (!attacker)
+			return nullptr;
+
+		std::shared_ptr<IUnit> result;
+		
+		const auto posAttacker = attacker->getPosition();
 		for (auto& unit : _units)
 		{
 			if (unit.first == excludeUnitId || !unit.second->isAlive())
 				continue;
 
-			auto unitPos = unit.second->getPosition();
-			auto attacker = getUnit(excludeUnitId);
-			if (!attacker)
-				return nullptr;
+			const auto victim = unit.second;
+			const auto posVictim = victim->getPosition();
 
-			const auto pos = attacker->getPosition();
-			const float length = std::sqrt(std::pow(unitPos.x - pos.x, 2) + std::pow(unitPos.y - pos.y, 2));
+			const int difX(posVictim.x - posAttacker.x), difY(posVictim.y - posAttacker.y);
+			const double length = std::sqrt(std::pow(difX, 2) + std::pow(difY, 2));
 			if (rangeMin <= length && length <= rangeMax)
-				return unit.second;
+			{
+				result = victim;
+			}
 		}
-		return nullptr;
+		return result;
 	}
 
 	std::shared_ptr<sw::IUnit> Map::getUnit(uint32_t id) const
@@ -64,19 +72,19 @@ namespace sw
 
 	bool Map::update(uint32_t tickId)  
 	{
-		const bool isEnd = false;
+		bool hasUpdate = false;
 		for (auto& unit : _units)
 		{
 			if (unit.second->isAlive())
-				unit.second->update(tickId, this);
+				hasUpdate = unit.second->update(tickId, this) || hasUpdate;
 		}
 		std::erase_if(_units, [](auto& pair) { return !pair.second->isAlive(); });
-		return isEnd;
+		return !hasUpdate;
 	}
 
 	void Map::placeUnit(uint32_t x, uint32_t y, std::shared_ptr<IUnit> unit)
 	{
-		const int id = unit->getId();
+		const uint32_t id = unit->getId();
 		_units[id] = unit;
 		unit->setPosition(x, y);
 	}

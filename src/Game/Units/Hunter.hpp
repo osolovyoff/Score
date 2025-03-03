@@ -13,13 +13,13 @@ namespace sw
 	public:
 		Hunter(const io::SpawnHunter& data) : Unit(data) {}
 
-		virtual bool action(uint32_t tickId, Map* map) override
+		bool action(uint32_t tickId, Map* map) override
 		{
-			const bool wasAction = Unit<io::SpawnHunter>::action(tickId, map);
-			if (wasAction) return true;
+			const bool wasCloseCombatAction = Unit<io::SpawnHunter>::action(tickId, map);
+			if (wasCloseCombatAction) return true;
 
 			const uint32_t attackerUnitId = getId();
-			auto unit = map->getUnitInRange(attackerUnitId, 2, _data.range);
+			auto unit = map->getUnitInRange(attackerUnitId, minimum_range, _data.range);
 			if (unit)
 			{
 				unit->takeDamage(tickId,_data.agility, attackerUnitId);

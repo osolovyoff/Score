@@ -28,7 +28,7 @@ namespace sw::io
 					TCommandData data;
 					CommandParserVisitor visitor(stream);
 					data.visit(visitor);
-					GameSession::getInstance().process(data);
+					// GameSession::getInstance().process(data);
 					handler(std::move(data));
 				});
 			if (!inserted)

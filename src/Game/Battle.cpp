@@ -12,40 +12,44 @@
 
 bool sw::Battle::play()
 {
-	const bool isFinal = map->update(tickId);
-	tickId++;
-	return isFinal;
+	_tickId++;
+	return _map->update(_tickId); // update will return false if there are no units moving
 }
 
-void sw::Battle::process(int tick_id, const io::CreateMap& data)
+void sw::Battle::process(const io::CreateMap& data)
 {
-	if (!map)
+	if (!_map)
 	{
-		map.reset(new Map(data.width, data.height)); 
-		if (map)
-			eventLog.log(tick_id, io::MapCreated{data.width, data.height});
+		_map.reset(new Map(data.width, data.height)); 
+		if (_map)
+			_eventLog.log(_tickId, io::MapCreated{data.width, data.height});
 	}
 }
 
-void sw::Battle::process(int tick_id, const io::SpawnHunter& data)
+void sw::Battle::process(const io::SpawnHunter& data)
 {
 	std::shared_ptr<IUnit> unit = std::make_shared<Hunter>(data);
-	map->placeUnit(data.x, data.y, std::dynamic_pointer_cast<IUnit>(unit));
-	eventLog.log(tick_id, io::UnitSpawned{data.unitId, "Hunter", data.x, data.y});
+	_map->placeUnit(data.x, data.y, std::dynamic_pointer_cast<IUnit>(unit));
+	_eventLog.log(_tickId, io::UnitSpawned{data.unitId, "Hunter", data.x, data.y});
 }
 
-void sw::Battle::process(int tick_id, const io::SpawnSwordsman& data)
+void sw::Battle::process(const io::SpawnSwordsman& data)
 {
-	map->placeUnit(data.x, data.y, std::make_shared<Swordsman>(data));
-	eventLog.log(tick_id, io::UnitSpawned{data.unitId, "Swordsman", data.x, data.y});
+	_map->placeUnit(data.x, data.y, std::make_shared<Swordsman>(data));
+	_eventLog.log(_tickId, io::UnitSpawned{data.unitId, "Swordsman", data.x, data.y});
 }
 
-void sw::Battle::process(int tick_id, const io::March& data)
+void sw::Battle::process(const io::March& data)
 {
-	std::shared_ptr<IUnit> unit = map->getUnit(data.unitId);
-	if (!unit) return; 
-
-	const auto pos = unit->getPosition();
-	unit->setTarget(data.targetX, data.targetY);
-	eventLog.log(tick_id, io::MarchStarted{data.unitId, pos.x, pos.y, data.targetX, data.targetY});
+	std::shared_ptr<IUnit> unit = _map->getUnit(data.unitId);
+	if (unit)
+	{
+		const auto pos = unit->getPosition();
+		unit->setTarget(data.targetX, data.targetY);
+		_eventLog.log(_tickId, io::MarchStarted{data.unitId, pos.x, pos.y, data.targetX, data.targetY});
+	}
+	else
+	{
+		// TODO: log error
+	}
 }

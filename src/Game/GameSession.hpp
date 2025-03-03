@@ -11,20 +11,18 @@ namespace sw
 
 	public:
 		GameSession() = default;
-		static GameSession& getInstance();
 
 		template <typename TCommandData>
 		void process(const TCommandData& data)
 		{
-			battle.process(1, data);
+			battle.process(data);
 		}
 
 		void run()
 		{
 			while (true)
-			{
-				battle.play();
-			}
+				if (battle.play())
+					break;
 		}
 	};
 }

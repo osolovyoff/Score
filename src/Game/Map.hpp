@@ -15,7 +15,7 @@ namespace sw
 		std::unordered_map<uint32_t, SharedUnit> _units;
 
 	public:
-		Map(size_t width, size_t height) : _width(width), _height(height) {}
+		Map(uint32_t width, uint32_t height) : _width(width), _height(height) {}
 		bool update(uint32_t tickId);
 
 		void placeUnit(uint32_t x, uint32_t y, std::shared_ptr<IUnit> unit);
