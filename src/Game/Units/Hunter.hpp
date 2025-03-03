@@ -1,15 +1,14 @@
 ﻿#pragma once
 
+#include <cstdint>
 #include <IO/Commands/SpawnHunter.hpp>
 
 #include "Unit.hpp"
 
-#include <cstdint>
-
 
 namespace sw
 {
-	class Hunter: public Unit<io::SpawnHunter> // TODO: don't forget to add more diff types of units
+	class Hunter: public Unit<io::SpawnHunter>
 	{
 	public:
 		Hunter(const io::SpawnHunter& data) : Unit(data) {}

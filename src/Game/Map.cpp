@@ -1,22 +1,17 @@
 ﻿#include "Map.hpp"
 
-#include <math.h>
+#include <cmath>
 
-#include "IO/System/EventLog.hpp"
-#include "Units/Unit.hpp"
+#include <IO/System/EventLog.hpp>
+#include <Game/Units/Unit.hpp>
 
 namespace sw
 {
-	bool Map::isValidPosition(uint32_t x, uint32_t y) const
-	{
-		return 0 <= x && x < width && 0 <= y && y < height;
-	}
-
-	void Map::kill(uint32_t unitId)
-	{
-		auto unit = getUnit(unitId);
-		units.erase(unitId);
-	}
+	// void Map::kill(uint32_t unitId)
+	// {
+	// 	auto unit = getUnit(unitId);
+	// 	_units.erase(unitId);
+	// }
 
 	std::shared_ptr<IUnit> Map::getClosestUnit(uint32_t excludeUnitId) const
 	{
@@ -27,9 +22,9 @@ namespace sw
 		const auto pos = attacker->getPosition();
 		uint32_t closestUnitId = excludeUnitId;
 		float closestDistance = std::numeric_limits<float>::max();
-		for (auto& unit : units)
+		for (auto& unit : _units)
 		{
-			if (unit.first == excludeUnitId)
+			if (unit.first == excludeUnitId || !unit.second->isAlive())
 				continue;
 
 			auto unitPos = unit.second->getPosition();
@@ -47,9 +42,9 @@ namespace sw
 
 	std::shared_ptr<IUnit> Map::getUnitInRange(uint32_t excludeUnitId, uint32_t rangeMin, uint32_t rangeMax) const
 	{
-		for (auto& unit : units)
+		for (auto& unit : _units)
 		{
-			if (unit.first == excludeUnitId)
+			if (unit.first == excludeUnitId || !unit.second->isAlive())
 				continue;
 
 			auto unitPos = unit.second->getPosition();
@@ -67,8 +62,8 @@ namespace sw
 
 	std::shared_ptr<sw::IUnit> Map::getUnit(uint32_t id) const
 	{
-		auto e = units.find(id);
-		if (e == units.end())
+		auto e = _units.find(id);
+		if (e == _units.end())
 			return nullptr;
 		return e->second;
 	}
@@ -76,19 +71,19 @@ namespace sw
 	bool Map::update(uint32_t tickId)  
 	{
 		const bool isEnd = false;
-		for (auto& unit : units)
+		for (auto& unit : _units)
 		{
 			if (unit.second->isAlive())
 				unit.second->update(tickId, this);
 		}
-		std::erase_if(units, [](auto& pair) { return !pair.second->isAlive(); });
+		std::erase_if(_units, [](auto& pair) { return !pair.second->isAlive(); });
 		return isEnd;
 	}
 
 	void Map::placeUnit(uint32_t x, uint32_t y, std::shared_ptr<IUnit> unit)
 	{
 		const int id = unit->getId();
-		units[id] = unit;
+		_units[id] = unit;
 		unit->setPosition(x, y);
 	}
 }

@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 {
 	using namespace sw;
 
-	if (argc < 2) // TODO: move back to 1
+	if (argc == 1)
 	{
 		throw std::runtime_error("Error: No file specified in command line argument");
 	}
@@ -41,10 +41,7 @@ int main(int argc, char** argv)
 	parser.parse(file);
 	GameSession::getInstance().run();
 	return 0;
-
-	std::cout << "\n\nEvents:\n";
-	EventLog eventLog;
-
+/*
 	eventLog.log(1, io::MapCreated{10, 10});
 	eventLog.log(1, io::UnitSpawned{1, "Swordsman", 0, 0});
 	eventLog.log(1, io::UnitSpawned{2, "Hunter", 9, 0});
@@ -76,7 +73,5 @@ int main(int argc, char** argv)
 	eventLog.log(7, io::UnitMoved{3, 0, 3});
 
 	eventLog.log(8, io::UnitAttacked{2, 3, 5, 0});
-	eventLog.log(8, io::UnitDied{3});
-
-	return 0;
+	eventLog.log(8, io::UnitDied{3});*/
 }

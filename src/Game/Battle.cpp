@@ -17,33 +17,33 @@ bool sw::Battle::play()
 	return isFinal;
 }
 
-void sw::Battle::act(int tick_id, const io::CreateMap& data)
+void sw::Battle::process(int tick_id, const io::CreateMap& data)
 {
 	if (!map)
 	{
-		map = std::make_shared<Map>(data.width, data.height); // TODO: Change to the unique
+		map.reset(new Map(data.width, data.height)); 
 		if (map)
 			eventLog.log(tick_id, io::MapCreated{data.width, data.height});
 	}
 }
 
-void sw::Battle::act(int tick_id, const io::SpawnHunter& data)
+void sw::Battle::process(int tick_id, const io::SpawnHunter& data)
 {
 	std::shared_ptr<IUnit> unit = std::make_shared<Hunter>(data);
 	map->placeUnit(data.x, data.y, std::dynamic_pointer_cast<IUnit>(unit));
 	eventLog.log(tick_id, io::UnitSpawned{data.unitId, "Hunter", data.x, data.y});
 }
 
-void sw::Battle::act(int tick_id, const io::SpawnSwordsman& data)
+void sw::Battle::process(int tick_id, const io::SpawnSwordsman& data)
 {
 	map->placeUnit(data.x, data.y, std::make_shared<Swordsman>(data));
 	eventLog.log(tick_id, io::UnitSpawned{data.unitId, "Swordsman", data.x, data.y});
 }
 
-void sw::Battle::act(int tick_id, const io::March& data)
+void sw::Battle::process(int tick_id, const io::March& data)
 {
 	std::shared_ptr<IUnit> unit = map->getUnit(data.unitId);
-	if (!unit) return; // TODO: log error
+	if (!unit) return; 
 
 	const auto pos = unit->getPosition();
 	unit->setTarget(data.targetX, data.targetY);

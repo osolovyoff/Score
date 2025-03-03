@@ -5,29 +5,10 @@
 #include "IO/Events/UnitDied.hpp"
 #include "IO/Events/UnitMoved.hpp"
 
-#include <array>
+#include "InterfaceUnit.h"
 
 namespace sw
 {
-	struct Vector2
-	{
-		uint32_t x;
-		uint32_t y;
-	};
-
-	class IUnit
-	{
-	public:
-		virtual ~IUnit() = default;
-		virtual uint32_t getId() const = 0;
-		virtual bool isAlive() const = 0;
-		virtual void update(uint32_t tickId, Map* map) = 0;
-		virtual void setTarget(uint32_t x, uint32_t y) = 0;
-		virtual void setPosition(uint32_t x, uint32_t y) = 0;
-		virtual Vector2 getPosition() const = 0;
-		virtual void takeDamage(uint32_t tickId, uint32_t damage, uint32_t attackerUnitId) = 0;
-	};
-
 	template <typename T>
 	class Unit: public IUnit
 	{
@@ -37,7 +18,7 @@ namespace sw
 		Vector2 _target, _position;
 
 	public:
-		Unit(const T& data): _data(data){} // TODO: position should be init
+		Unit(const T& data): _data(data){} 
 
 		uint32_t getId() const override { return _data.unitId; }
 
@@ -47,7 +28,6 @@ namespace sw
 		{
 			if (_data.hp == 0)
 			{
-				map->kill(_data.unitId);
 				return;
 			}
 
@@ -86,17 +66,11 @@ namespace sw
 			const int direction_x = _target.x - _position.x;
 			const int direction_y = _target.y - _position.y;
 			if (direction_x != 0)
-			{
 				_position.x += direction_x > 0 ? 1 : -1;
-			}
 			else if (direction_y != 0)
-			{
 				_position.y += direction_y > 0 ? 1 : -1;
-			}
 			else
-			{
 				return false;
-			}
 			return true;
 		}
 
