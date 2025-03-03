@@ -23,8 +23,6 @@ namespace sw
 		std::shared_ptr<IUnit> getUnit(uint32_t unitId) const;
 		std::shared_ptr<IUnit> getClosestUnit(uint32_t excludeUnitId) const;
 		std::shared_ptr<IUnit> getUnitInRange(uint32_t excludeUnitId, uint32_t rangeMin, uint32_t rangeMax) const;
-
-		// void kill(uint32_t unitId);
 	};
 }
 

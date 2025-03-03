@@ -7,12 +7,6 @@
 
 namespace sw
 {
-	// void Map::kill(uint32_t unitId)
-	// {
-	// 	auto unit = getUnit(unitId);
-	// 	_units.erase(unitId);
-	// }
-
 	std::shared_ptr<IUnit> Map::getClosestUnit(uint32_t excludeUnitId) const
 	{
 		auto attacker = getUnit(excludeUnitId);
