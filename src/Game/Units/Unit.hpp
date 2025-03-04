@@ -5,7 +5,7 @@
 #include "IO/Events/UnitDied.hpp"
 #include "IO/Events/UnitMoved.hpp"
 
-#include "InterfaceUnit.h"
+#include "InterfaceUnit.hpp"
 #include "IO/Events/MarchEnded.hpp"
 
 namespace sw
